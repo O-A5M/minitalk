@@ -1,47 +1,8 @@
 #include "minitalk.h"
 
-int	signal_sign;
+int	sign;
 
-static void	send_signal(int pid, char c)
-{
-	int	bit;
-	int	time;
-
-	bit = 7;
-	while (bit >= 0)
-	{
-		signal_sign = 0;
-		if ((c >> bit) & 1)
-		{
-			kill(pid, SIGUSR1);
-		}
-		else
-			kill(pid, SIGUSR2);
-		time = 0;
-		while (!signal_sign && time < 50)
-		{
-			usleep(350);
-			time++;
-		}
-		if (!signal_sign)
-			exit(1);
-		bit--;
-	}
-}
-
-static void	string_manipulation(int	pid, char *s)
-{
-	int	i;
-
-	i = 0;
-	while (s[i])
-	{
-		send_signal(pid, s[i]);
-		i++;
-	}
-}
-
-static int	pid_parsing(char *s)
+int	parse_pid(char *s)
 {
 	int	i;
 
@@ -50,37 +11,72 @@ static int	pid_parsing(char *s)
 	{
 		if (s[i] != '+' && s[i] != '-' && (s[i] < '0' || s[i] > '9'))
 		{
-			ft_putstr_fd("Error\n", 1);
+			write(1, "Error\n", 6);
 			exit(1);
 		}
 		i++;
 	}
-	return (ft_atoi(s));
+	return ft_atoi(s);
 }
 
-void	signal_handler(int signal)
+void	client_handler(int signal)
 {
-	if (signal == SIGUSR1)
-		signal_sign = 1;
-	else
-		exit(0);
+	(void)signal;
+	sign = 1;
+}
+
+void	send_message(int pid, char *s)
+{
+	int		i;
+	char	j;
+
+	i = 0;
+	while (1)
+	{
+		j = 8;
+		while (--j >= 0)
+		{
+			if ((s[i] >> j) & 1)
+				kill(pid, SIGUSR1);
+			else
+				kill(pid, SIGUSR2);
+			usleep(100);
+			if (!sign)
+			{
+				write(1, "Error\n", 6);
+				exit (1);
+			}
+			sign = 0;
+		}
+		if (s[i] == '\0')
+			break ;
+		i++;
+	}
 }
 
 int	main(int ac, char **av)
 {
-	int					pid;
-	struct sigaction sa;
+	int				s_pid;
+	struct sigaction	sa;
 
-	sa.sa_handler = signal_handler;
-	sa.sa_flags = 0;
-	sigemptyset(&sa.sa_mask);
-	sigaction(SIGUSR1, &sa, NULL);
-	sigaction(SIGUSR2, &sa, NULL);
 	if (ac != 3)
 	{
-		ft_putstr_fd("Error\n", 1);
-		exit(1);
+		write(1, "Error\n", 6);
+		return (1);
 	}
-	pid = pid_parsing(av[1]);
-	string_manipulation(pid, av[2]);
+	s_pid = parse_pid(av[1]);
+	if (s_pid == -1 || av[2][0] == '\0')
+	{
+		write(1, "Error\n", 6);
+		return (1);
+	}
+	sa.sa_handler = client_handler;
+	sa.sa_flags = 0;
+	sigemptyset(&sa.sa_mask);
+	if (sigaction(SIGUSR1, &sa, NULL) || sigaction(SIGUSR2, &sa, NULL))
+	{
+		write(1, "Error\n", 19);
+		return (1);
+	}
+	send_message(s_pid, av[2]);
 }

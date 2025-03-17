@@ -1,21 +1,21 @@
 #ifndef MINITALK_H
 # define MINITALK_H
-// # define _POSIX_C_SOURCE 201112L
-# include <signal.h>
+
 # include <unistd.h>
+# include <signal.h>
 # include <stdlib.h>
+# include <sys/types.h>
+# include <limits.h>
 
 typedef struct s_minitalk
 {
-	char	received_char;
-	int		bit_count;
-	int		pid_sender;
-}				t_minitalk;
+	char	byte;
+	pid_t	client;
+	int		n_bits;
+	int		flag;
+}	t_minitalk;
 
-
-int		ft_atoi(const char *nptr);
+int		ft_atoi(const char *s);
 void	ft_putnbr_fd(int n, int fd);
-void	ft_putchar_fd(char c, int fd);
-void	ft_putstr_fd(char *s, int fd);
 
 #endif
