@@ -2,10 +2,10 @@
 
 CC = cc
 CFLAGS = -Wall -Werror -Wextra
-SRC_CLIENT = client.c ft_atoi.c
-SRC_SERVER = server.c ft_atoi.c
-OBJS_CLIENT = $(SRC_CLIENT:.o=.c)
-OBJS_SERVER = $(SRC_SERVER:.o=.c)
+SRC_CLIENT = client.c ft_atoi.c ft_putnbr.c
+SRC_SERVER = server.c ft_atoi.c ft_putnbr.c
+OBJS_CLIENT = $(SRC_CLIENT:.c=.o)
+OBJS_SERVER = $(SRC_SERVER:.c=.o)
 NAME_SERVER = server
 NAME_CLIENT = client
 
@@ -19,7 +19,7 @@ $(NAME_SERVER): $(OBJS_SERVER)
 $(NAME_CLIENT): $(OBJS_CLIENT)
 	$(CC) $(CFLAGS) $(OBJS_CLIENT) -o $(NAME_CLIENT)
 
-clean: $(OBJS_CLIENT) $(OBJS_SERVER)
+clean:
 	rm -rf $(OBJS_CLIENT) $(OBJS_SERVER)
 
 fclean: clean
