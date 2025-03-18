@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   client.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oakhmouc <oakhmouc@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/18 14:30:35 by oakhmouc          #+#    #+#             */
+/*   Updated: 2025/03/18 14:30:38 by oakhmouc         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minitalk.h"
 
-int	sign;
+int	g_sign;
 
 static void	error_message(void)
 {
@@ -32,7 +44,7 @@ int	parse_pid(char *s)
 void	client_handler(int signal)
 {
 	(void)signal;
-	sign = 1;
+	g_sign = 1;
 }
 
 void	send_message(int pid, char *s)
@@ -51,9 +63,9 @@ void	send_message(int pid, char *s)
 			else
 				kill(pid, SIGUSR2);
 			usleep(100);
-			if (!sign)
+			if (!g_sign)
 				error_message();
-			sign = 0;
+			g_sign = 0;
 		}
 		if (s[i] == '\0')
 			break ;
@@ -63,7 +75,7 @@ void	send_message(int pid, char *s)
 
 int	main(int ac, char **av)
 {
-	int				s_pid;
+	int					s_pid;
 	struct sigaction	sa;
 
 	if (ac != 3)

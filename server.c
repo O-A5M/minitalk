@@ -1,44 +1,56 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   server.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oakhmouc <oakhmouc@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/18 14:31:53 by oakhmouc          #+#    #+#             */
+/*   Updated: 2025/03/18 14:31:55 by oakhmouc         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minitalk.h"
 
-t_minitalk	data;
+t_minitalk	g_data;
 
 void	server_handler(int signum, siginfo_t *pid, void *param)
 {
 	(void)param;
-	if (data.n_bits != 0 && data.client != pid->si_pid)
-		data.n_bits = 0;
+	if (g_data.n_bits != 0 && g_data.client != pid->si_pid)
+		g_data.n_bits = 0;
 	if (signum == SIGUSR1)
-		data.byte = (data.byte << 1) | 1;
+		g_data.byte = (g_data.byte << 1) | 1;
 	else
-		data.byte <<= 1;
-	data.n_bits++;
-	if (data.n_bits < 8)
-		data.flag = 1;
-	data.client = pid->si_pid;
+		g_data.byte <<= 1;
+	g_data.n_bits++;
+	if (g_data.n_bits < 8)
+		g_data.flag = 1;
+	g_data.client = pid->si_pid;
 }
 
 void	print_data(void)
 {
 	while (1)
 	{
-		if (data.flag)
+		if (g_data.flag)
 		{
-			data.flag = 0;
-			kill(data.client, SIGUSR1);
+			g_data.flag = 0;
+			kill(g_data.client, SIGUSR1);
 		}
-		else if (data.n_bits == 8)
+		else if (g_data.n_bits == 8)
 		{
-			if (data.byte)
+			if (g_data.byte)
 			{
-				write(1, &data.byte, 1);
-				data.n_bits = 0;
-				kill(data.client, SIGUSR1);
+				write(1, &g_data.byte, 1);
+				g_data.n_bits = 0;
+				kill(g_data.client, SIGUSR1);
 			}
 			else
 			{
 				write(1, "\n", 1);
-				data.n_bits = 0;
-				kill(data.client, SIGUSR2);
+				g_data.n_bits = 0;
+				kill(g_data.client, SIGUSR2);
 			}
 		}
 	}
