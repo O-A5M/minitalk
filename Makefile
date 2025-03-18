@@ -12,7 +12,7 @@ CFLAGS = -Wall -Wextra -Werror
 
 # the rules
 
-all: $(NAME)
+all: $(SERVER) $(CLIENT)
 
 $(SERVER): $(OBJ_SERVER)
 	$(CC) $(CFLAGS) $(OBJ_SERVER) -o $(SERVER)
@@ -29,4 +29,4 @@ fclean: clean
 re: fclean all
 
 .PHONY: clean
-.SECONDARY: $(O_SERVER) $(O_CLIENT)
+.SECONDARY: $(OBJ_SERVER) $(OBJ_CLIENT)
